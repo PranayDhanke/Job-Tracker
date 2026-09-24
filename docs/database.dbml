@@ -1,0 +1,134 @@
+Table users {
+  id uuid [pk]
+  name varchar(100) [not null]
+  email varchar(255) [not null, unique]
+  password_hash text [not null]
+  role varchar(20) [not null]
+  status varchar(20) [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    email [unique]
+  }
+}
+
+Table jobs {
+  id uuid [pk]
+  user_id uuid [not null]
+  company varchar(255) [not null]
+  title varchar(255) [not null]
+  location varchar(255)
+  job_url text
+  description text
+  employment_type varchar(50)
+  salary_min numeric
+  salary_max numeric
+  source varchar(100)
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    user_id
+    company
+    created_at
+  }
+}
+
+Table applications {
+  id uuid [pk]
+  user_id uuid [not null]
+  job_id uuid [not null]
+  status varchar(30) [not null]
+  applied_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (user_id, job_id) [unique]
+    user_id
+    job_id
+    status
+    created_at
+  }
+}
+
+Table notes {
+  id uuid [pk]
+  application_id uuid [not null]
+  user_id uuid [not null]
+  content text [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    application_id
+    user_id
+  }
+}
+
+Table interviews {
+  id uuid [pk]
+  application_id uuid [not null]
+  user_id uuid [not null]
+  interview_type varchar(50) [not null]
+  scheduled_at timestamptz [not null]
+  duration_minutes int
+  meeting_url text
+  notes text
+  status varchar(30) [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    application_id
+    user_id
+    scheduled_at
+    status
+  }
+}
+
+Table attachments {
+  id uuid [pk]
+  application_id uuid [not null]
+  user_id uuid [not null]
+  filename varchar(255) [not null]
+  storage_key text [not null]
+  content_type varchar(100)
+  size_bytes bigint
+  created_at timestamptz [not null]
+
+  indexes {
+    application_id
+    user_id
+  }
+}
+
+Table audit_logs {
+  id uuid [pk]
+  user_id uuid
+  action varchar(100) [not null]
+  resource_type varchar(100)
+  resource_id uuid
+  ip_address varchar(45)
+  user_agent text
+  metadata jsonb
+  created_at timestamptz [not null]
+
+  indexes {
+    user_id
+    (resource_type, resource_id)
+    created_at
+  }
+}
+
+Ref: jobs.user_id > users.id
+Ref: applications.user_id > users.id
+Ref: applications.job_id > jobs.id
+Ref: notes.application_id > applications.id
+Ref: notes.user_id > users.id
+Ref: interviews.application_id > applications.id
+Ref: interviews.user_id > users.id
+Ref: attachments.application_id > applications.id
+Ref: attachments.user_id > users.id
+Ref: audit_logs.user_id > users.id
