@@ -8,9 +8,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/pranaydhanke/job-tracker/config"
-	"github.com/pranaydhanke/job-tracker/internal/logger"
+	"github.com/pranaydhanke/job-tracker/internal/infrastructure/database"
+	"github.com/pranaydhanke/job-tracker/internal/platform/logger"
+	"github.com/pranaydhanke/job-tracker/internal/routes"
 )
 
 // main function
@@ -29,18 +30,18 @@ func main() {
 	//adding the logger
 	log := logger.NewLogger(cfg.App)
 
+	//connect the database
+	db, err := database.ConnectDB(cfg.Postgres)
+	if err != nil {
+		log.Error("Database failed to connect", "Error", err)
+		os.Exit(1)
+	}
+	defer db.Close()
+
 	log.Info("Starting the server")
 
-	//http router setup
-	router := gin.Default()
-	router.Use(gin.Recovery())
-
-	//health router
-	router.GET("health", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{
-			"status": "ok",
-		})
-	})
+	//gin http router setup
+	router := routes.SetupRoutes()
 
 	// Start serving after all routes have been registered.
 	server := &http.Server{
@@ -70,6 +71,9 @@ func main() {
 		log.Error("server shutdown failed", "error", err)
 		os.Exit(1)
 	}
+
+	//after shutdown closing the database connection
+	db.Close()
 
 	log.Info("Server Closed")
 
