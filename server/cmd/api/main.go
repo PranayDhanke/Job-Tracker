@@ -10,6 +10,7 @@ import (
 
 	"github.com/pranaydhanke/job-tracker/config"
 	"github.com/pranaydhanke/job-tracker/internal/infrastructure/database"
+	"github.com/pranaydhanke/job-tracker/internal/infrastructure/redis"
 	"github.com/pranaydhanke/job-tracker/internal/platform/logger"
 	"github.com/pranaydhanke/job-tracker/internal/routes"
 )
@@ -37,6 +38,16 @@ func main() {
 		os.Exit(1)
 	}
 	defer db.Close()
+	log.Info("database connected")
+
+	//connect the redis
+	rConn, err := redis.ConnectRedis(cfg.Redis)
+	if err != nil {
+		log.Error("Redis failed to connect", "Error", err)
+		os.Exit(1)
+	}
+	defer rConn.Close()
+	log.Info("Redis conencted")
 
 	log.Info("Starting the server")
 

@@ -18,8 +18,8 @@ type Config struct {
 
 // server/app config
 type AppConfig struct {
-	Port string `env:"PORT,required"`     //port for the server
-	Env  string `env:"ENV,required"` //env for the server like Production or Development
+	Port string `env:"PORT,required"` //port for the server
+	Env  string `env:"ENV,required"`  //env for the server like Production or Development
 }
 
 // database config
@@ -31,7 +31,9 @@ type PostgresConfig struct {
 
 // Redis config
 type RedisConfig struct {
-	Url string `env:"REDIS_URL,required"` //url to connect with the redis
+	Url               string `env:"REDIS_URL,required"` //url to connect with the redis
+	MaxIdleConnection int    `env:"REDIS_MAX_IDLE_CON,required"`
+	PoolSize          int    `env:"REDIS_POOL_SIZE,required"`
 }
 
 // AWS config for s3
