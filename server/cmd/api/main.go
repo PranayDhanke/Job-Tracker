@@ -11,6 +11,7 @@ import (
 	"github.com/pranaydhanke/job-tracker/config"
 	"github.com/pranaydhanke/job-tracker/internal/infrastructure/database"
 	"github.com/pranaydhanke/job-tracker/internal/infrastructure/redis"
+	metrices "github.com/pranaydhanke/job-tracker/internal/metrics"
 	"github.com/pranaydhanke/job-tracker/internal/platform/logger"
 	"github.com/pranaydhanke/job-tracker/internal/routes"
 )
@@ -48,6 +49,9 @@ func main() {
 	}
 	defer rConn.Close()
 	log.Info("Redis conencted")
+
+	//register the metrics
+	metrices.Register()
 
 	log.Info("Starting the server")
 
