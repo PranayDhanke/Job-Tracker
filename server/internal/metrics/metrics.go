@@ -2,7 +2,7 @@ package metrices
 
 import "github.com/prometheus/client_golang/prometheus"
 
-// variable for the metrices
+// variable for the http metrices
 var (
 	//variable to count the total requests
 	RequestsTotal = prometheus.NewCounterVec(
@@ -26,16 +26,29 @@ var (
 	RequestInFlight = prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Name: "http_request_in_flight",
-			Help:      "Number of HTTP request currently being processed",
+			Help: "Number of HTTP request currently being processed",
 		},
 	)
 )
 
-//function to register the all above metrics and initalize it
+// function to register the all above metrics and initalize it
 func Register() {
 	prometheus.MustRegister(
+
+		//http variables
 		RequestsTotal,
 		RequestDuration,
 		RequestInFlight,
+
+		//database variables
+		DBConnectionsTotal,
+		DBConnectionsIdle,
+		DBConnectionsAcquired,
+		DBConnectionsMax,
+
+		//redis variables
+		RedisOperationDuration,
+		RedisOperationErrors,
+		RedisOperationsTotal,
 	)
 }

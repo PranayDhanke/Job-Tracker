@@ -53,6 +53,9 @@ func main() {
 	//register the metrics
 	metrices.Register()
 
+	//for the db metrics
+	metrices.StartDBMetrics(db)
+
 	log.Info("Starting the server")
 
 	//gin http router setup
