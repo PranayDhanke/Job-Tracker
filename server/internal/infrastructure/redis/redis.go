@@ -9,7 +9,7 @@ import (
 )
 
 // function to connect with the database
-func ConnectRedis(cfg config.RedisConfig) (*redis.Conn, error) {
+func ConnectRedis(cfg config.RedisConfig) (*redis.Client, error) {
 	//parse the redis url for connection
 	rOPtion, err := redis.ParseURL(cfg.Url)
 	if err != nil {
@@ -36,5 +36,5 @@ func ConnectRedis(cfg config.RedisConfig) (*redis.Conn, error) {
 	}
 
 	//return the redis client
-	return rClient.Conn(), nil
+	return rClient, nil
 }

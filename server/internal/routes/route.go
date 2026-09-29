@@ -1,38 +1,36 @@
 package routes
 
 import (
-	"net/http"
+	"log/slog"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/pranaydhanke/job-tracker/config"
 	"github.com/pranaydhanke/job-tracker/internal/platform/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/redis/go-redis/v9"
 )
 
-func SetupRoutes() *gin.Engine {
+func SetupRoutes(
+	cfg *config.Config,
+	log *slog.Logger,
+	db *pgxpool.Pool,
+	rCon *redis.Client,
+) *gin.Engine {
 	//initialize the router
-	router := gin.Default()
+	router := gin.New()
 
 	//all midddlwares
 	router.Use(
-		gin.Logger(),
+		middleware.RequestID(),
+		middleware.LoggerMiddleware(log),
+		middleware.Metrics(),
 		gin.Recovery(),
 		middleware.ErrorMiddleware(),
-		middleware.Metrics(),
 	)
 
-	// / route
-	router.GET("/", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{
-			"Status": "Running",
-		})
-	})
-
 	//health router
-	router.GET("/health", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{
-			"status": "ok",
-		})
-	})
+	SetupHealthRoutes(router, db, rCon)
 
 	//metrics route
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))

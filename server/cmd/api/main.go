@@ -42,12 +42,12 @@ func main() {
 	log.Info("database connected")
 
 	//connect the redis
-	rConn, err := redis.ConnectRedis(cfg.Redis)
+	rClient, err := redis.ConnectRedis(cfg.Redis)
 	if err != nil {
 		log.Error("Redis failed to connect", "Error", err)
 		os.Exit(1)
 	}
-	defer rConn.Close()
+	defer rClient.Close()
 	log.Info("Redis conencted")
 
 	//register the metrics
@@ -56,7 +56,7 @@ func main() {
 	log.Info("Starting the server")
 
 	//gin http router setup
-	router := routes.SetupRoutes()
+	router := routes.SetupRoutes(cfg, log, db, rClient)
 
 	// Start serving after all routes have been registered.
 	server := &http.Server{
@@ -66,7 +66,7 @@ func main() {
 
 	//starting the server using a go routing
 	go func() {
-		log.Info("http server started", "port", cfg.App.Port)
+		log.Info("server started", "port", cfg.App.Port, "environment", cfg.App.Env)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Error("server error", "error", err)
 		}
